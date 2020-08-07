@@ -24,7 +24,7 @@ makefile.dep: *.[Cch] indexes/*.[ch] indexes/*.cc
 	for i in indexes/*.cc; do ${CXX} -MM "$${i}" -MT $${i%.cc}.o ${CXXFLAGS}; done >> $@
 	#find ./ -type f \( -iname \*.c -o -iname \*.cc \) | parallel clang -MM "{}" -MT "{.}".o > makefile.dep #If you find that the lines above take too long...
 
--include makefile.dep
+#-include makefile.dep
 
 main: $(MAIN_OBJ)
 
