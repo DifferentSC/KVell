@@ -43,12 +43,12 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
-    cb->item = malloc(sizeof(*meta) + key_size);
-    meta = (struct item_metadata *)(cb->item);
+    char* item = malloc(sizeof(*meta) + key_size);
+    meta = (struct item_metadata *)item;
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
-    memcpy(cb->item + sizeof(*meta), key_bytes, key_size);
+    memcpy(&item[sizeof(*meta)], key_bytes, key_size);
     kv_read_async(cb);
     // busy waiting (could it be changed to conditional variables?)
     while(cb->is_finished != 1);
@@ -58,7 +58,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     }
     // Copy to Java
     jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
-    jbyte *item_value = cb->item + sizeof(*meta) + key_size;
+    jbyte *item_value = &item[sizeof(*meta)+key_size];
     (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
     free(cb->item);
     free(cb);
@@ -80,7 +80,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size + value_size);
-    meta = (struct item_metadata *)(cb->item);
+    meta = (struct item_metadata *)item;
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
