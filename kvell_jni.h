@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
 
 /*
  * Class:     edu_useoul_streamix_kvell_flink_KVell
+ * Method:    add_native
+ * Signature: ([B[B)V
+ */
+JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_add_1native
+  (JNIEnv *, jobject, jbyteArray, jbyteArray);
+
+/*
+ * Class:     edu_useoul_streamix_kvell_flink_KVell
  * Method:    delete_native
  * Signature: ([B)V
  */
