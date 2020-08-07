@@ -8,10 +8,11 @@ CXXFLAGS= ${CFLAGS} -std=c++11
 LDLIBS=-lm -lpthread -lstdc++
 
 INDEXES_OBJ=indexes/rbtree.o indexes/rax.o indexes/art.o indexes/btree.o
-MAIN_OBJ=main.o slab.o freelist.o ioengine.o pagecache.o stats.o random.o slabworker.o workload-common.o workload-ycsb.o workload-production.o utils.o in-memory-index-rbtree.o in-memory-index-rax.o in-memory-index-art.o in-memory-index-btree.o ${INDEXES_OBJ}
+MAIN_OBJ=main.o slab.o freelist.o ioengine.o pagecache.o stats.o random.o slabworker.o workload-common.o workload-ycsb.o workload-production.o utils.o in-memory-index-rbtree.o in-memory-index-rax.o in-memory-index-art.o in-memory-index-btree.o ${INDEXES_OBJ} kvell_jni.h
 MICROBENCH_OBJ=microbench.o random.o stats.o utils.o ${INDEXES_OBJ}
 BENCH_OBJ=benchcomponents.o pagecache.o random.o $(INDEXES_OBJ)
-
+SHARED_LIBRARY_TARGET=kvell_jni.so
+LDFLAGS=-shared
 
 .PHONY: all clean
 
@@ -30,6 +31,12 @@ main: $(MAIN_OBJ)
 microbench: $(MICROBENCH_OBJ)
 
 benchcomponents: $(BENCH_OBJ)
+
+sharedlibrary: $(SHARED_LIBRARY_TARGET)
+
+$(SHARED_LIBRARY_TARGET):
+	$(CC) -fPIC -g -o $(SHARED_LIBRARY_TARGET) $(INDEXES_OBJ) $(MAIN_OBJ) $(MICROBENCH_OBJ)
+
 
 clean:
 	rm -f *.o indexes/*.o main microbench benchcomponents

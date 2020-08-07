@@ -2,8 +2,8 @@
 #define OPTIONS_H
 
 #define DEBUG 0
-#define PINNING 1
-#define PATH "/scratch%lu/kvell/slab-%d-%lu-%lu"
+#define PINNING 0
+#define PATH "/nvme/kvell/slab-%d-%lu-%lu"
 
 /* In memory structures */
 #define RBTREE 0
