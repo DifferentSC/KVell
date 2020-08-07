@@ -90,6 +90,8 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     kv_add_or_update_async(cb);
     // busy waiting (could it be changed to conditional variables?)
     while(cb->is_finished != 1);
+    free(cb->item);
+    free(cb);
 }
 
 /*
