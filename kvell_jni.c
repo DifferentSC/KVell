@@ -38,8 +38,8 @@ void do_nothing_callback(struct slab_callback *cb, void *item) {
  */
 JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1native
         (JNIEnv *env, jobject object, jbyteArray key) {
-    int key_size = (*env)->GetArrayLength(key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(key, NULL);
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -71,10 +71,10 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
  */
 JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
 (JNIEnv *env, jobject object, jbyteArray key, jbyteArray value) {
-    int key_size = (*env)->GetArrayLength(key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(key, NULL);
-    int value_size = (*env)->GetArrayLength(value);
-    jbyte *value_bytes = (*env)->GetByteArrayElements(value, NULL);
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    int value_size = (*env)->GetArrayLength(env, value);
+    jbyte *value_bytes = (*env)->GetByteArrayElements(env, value, NULL);
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -99,8 +99,8 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
  */
 JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1native
 (JNIEnv *env, jobject object, jbyteArray key) {
-    int key_size = (*env)->GetArrayLength(key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(key, NULL);
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -124,8 +124,8 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1nativ
  */
 JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1native
 (JNIEnv *env, jobject object, jbyteArray key, jbyteArray item) {
-    int key_size = (*env)->GetArrayLength(key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(key, nullptr);
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
 
     // Read first
     struct slab_callback *cb = malloc(sizeof(*cb));
@@ -143,8 +143,8 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
 
     jbyte *item_value = cb->item + sizeof(*meta) + key_size;
     // Then let's append.
-    int item_size = (*env)->GetArrayLength(item);
-    jbyte *item_bytes = (*env)->GetByteArrayElements(item, NULL);
+    int item_size = (*env)->GetArrayLength(env, item);
+    jbyte *item_bytes = (*env)->GetByteArrayElements(env, item, NULL);
 
     struct slab_callback *append_cb = malloc(sizeof(*cb));
     append_cb->item = malloc(sizeof(struct meta*) + cb->item->key_size + cb->item->value_size + item_size);
