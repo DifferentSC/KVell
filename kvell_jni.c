@@ -11,7 +11,7 @@
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_open_1native
-        (JNIEnv *, jobject) {
+        (JNIEnv *env, jobject object) {
     // init workers. Please make sure that databases are deleted.
     slab_workers_init(1, 8);
 }
@@ -22,7 +22,7 @@ JNIEXPORT jlong JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_open_1native
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
-(JNIEnv *, jobject) {
+(JNIEnv *env, jobject object) {
     // Do nothing.
 }
 
