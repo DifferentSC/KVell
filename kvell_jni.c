@@ -79,14 +79,15 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
-    cb->item = malloc(sizeof(*meta) + key_size + value_size);
+    char* item = malloc(sizeof(*meta) + key_size + value_size);
     meta = (struct item_metadata *)(cb->item);
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
     meta->value_size = value_size;
-    memcpy(cb->item + sizeof(*meta), key_bytes, key_size);
-    memcpy(cb->item + sizeof(*meta) + key_size, value_bytes, value_size);
+    memcpy(&item[sizeof(*meta)], key_bytes, key_size);
+    memcpy(&item[sizeof(*meta) + key_size], value_bytes, value_size);
+    cb->item = item;
     kv_add_or_update_async(cb);
     // busy waiting (could it be changed to conditional variables?)
     while(cb->is_finished != 1);
