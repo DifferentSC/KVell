@@ -35,7 +35,7 @@ benchcomponents: $(BENCH_OBJ)
 sharedlibrary: $(SHARED_LIBRARY_TARGET)
 
 $(SHARED_LIBRARY_TARGET):
-	$(CC) $(CFLAGS) -o -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/ $(SHARED_LIBRARY_TARGET) $(INDEXES_OBJ) $(MAIN_OBJ) $(MICROBENCH_OBJ) -shared
+	$(CC) $(CFLAGS) -o $(SHARED_LIBRARY_TARGET) $(INDEXES_OBJ) $(MAIN_OBJ) $(MICROBENCH_OBJ) -shared
 
 
 clean:
