@@ -39,5 +39,5 @@ $(SHARED_LIBRARY_TARGET): $(INDEXES_OBJ) $(MAIN_OBJ)
 
 
 clean:
-	rm -f *.o indexes/*.o main microbench benchcomponents
+	rm -f *.o *.so indexes/*.o main microbench benchcomponents sharedlibrary
 
