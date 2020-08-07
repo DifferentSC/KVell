@@ -14,7 +14,7 @@ JNIEXPORT jlong JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_open_1native
         (JNIEnv *env, jobject object) {
     // init workers. Please make sure that databases are deleted.
     slab_workers_init(1, 8);
-    return NULL;
+    return 0;
 }
 
 /*
@@ -85,7 +85,6 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     cb->payload = NULL;
     meta->key_size = key_size;
     meta->value_size = value_size;
-    char *item_key = cb->item + sizeof(*meta);
     memcpy(cb->item + sizeof(*meta), key_bytes, key_size);
     memcpy(cb->item + sizeof(*meta) + key_size, value_bytes, value_size);
     kv_add_or_update_async(cb);
