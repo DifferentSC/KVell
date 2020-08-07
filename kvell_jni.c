@@ -57,9 +57,9 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
         return NULL;
     }
     // Copy to Java
-    jbyteArray javaBytes = (*env)->NewByteArray(env, context.length);
+    jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
     jbyte *item_value = cb->item + sizeof(*meta) + key_size;
-    (*env)->SetByteArrayRegion(javaBytes, 0, meta->value_size, item_value);
+    (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
     free(cb->item);
     free(cb);
     return javaBytes;
@@ -106,7 +106,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1nativ
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
     cb->item = malloc(sizeof(*meta) + key_size);
-    meta = (struct item_metadata *)item;
+    meta = (struct item_metadata *)(cb->item);
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
@@ -150,7 +150,9 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
     struct slab_callback *append_cb = malloc(sizeof(*cb));
     append_cb->item = malloc(sizeof(struct meta*) + meta->key_size + meta->value_size + item_size);
     struct item_metadata *append_meta = (struct item_metadata *)item;
+    memcpy(append_cb->item + sizeof(struct meta*), key_bytes, meta->key_size);
     memcpy(append_cb->item + sizeof(struct meta*) + meta->key_size, item_value, meta->value_size);
+    memcpy(append_cb->item + sizeof(struct meta*) + meta->key_size + meta->value_size, item_bytes, item_size);
     append_cb->cb = do_nothing_callback;
     append_cb->payload = NULL;
     append_meta->key_size = key_size;
