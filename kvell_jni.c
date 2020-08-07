@@ -44,7 +44,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
     cb->item = malloc(sizeof(*meta) + key_size);
-    meta = (struct item_metadata *)item;
+    meta = (struct item_metadata *)(cb->item);
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
@@ -53,15 +53,16 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     // busy waiting (could it be changed to conditional variables?)
     while(cb->is_finished != 1);
 
-    if (item_metadata->value_size == 0) {
-        return null;
+    if (meta->value_size == 0) {
+        return NULL;
     }
     // Copy to Java
+    jbyteArray javaBytes = (*env)->NewByteArray(env, context.length);
     jbyte *item_value = cb->item + sizeof(*meta) + key_size;
     (*env)->SetByteArrayRegion(javaBytes, 0, meta->value_size, item_value);
     free(cb->item);
     free(cb);
-    return item_value;
+    return javaBytes;
 }
 
 /*
@@ -79,7 +80,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
     cb->item = malloc(sizeof(*meta) + key_size + value_size);
-    meta = (struct item_metadata *)item;
+    meta = (struct item_metadata *)(cb->item);
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
@@ -135,7 +136,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
     cb->cb = do_nothing_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
-    char *item_key = &item[sizeof(*meta)];
+    char *item_key = cb->item + sizeof(*meta);
     memcpy(item_key, key_bytes, key_size);
     kv_read_async(cb);
     // busy waiting (could it be changed to conditional variables?)
@@ -147,14 +148,14 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
     jbyte *item_bytes = (*env)->GetByteArrayElements(env, item, NULL);
 
     struct slab_callback *append_cb = malloc(sizeof(*cb));
-    append_cb->item = malloc(sizeof(struct meta*) + cb->item->key_size + cb->item->value_size + item_size);
+    append_cb->item = malloc(sizeof(struct meta*) + meta->key_size + meta->value_size + item_size);
     struct item_metadata *append_meta = (struct item_metadata *)item;
-    memcpy(append_cb->item + sizeof(struct meta*) + cb->item->key_size, item_value, cb->item->value_size);
+    memcpy(append_cb->item + sizeof(struct meta*) + meta->key_size, item_value, meta->value_size);
     append_cb->cb = do_nothing_callback;
     append_cb->payload = NULL;
     append_meta->key_size = key_size;
-    append_meta->value_size = cb->item->value_size + item_size;
-    kv_add_or_update(append_cb);
+    append_meta->value_size = meta->value_size + item_size;
+    kv_add_or_update_async(append_cb);
 
     while(cb->is_finished != 1);
 
