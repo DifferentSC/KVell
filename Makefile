@@ -1,6 +1,6 @@
 CC=clang  #If you use GCC, add -fno-strict-aliasing to the CFLAGS because the Google BTree does weird stuff
 #CFLAGS=-Wall -O0 -ggdb3
-CFLAGS=-O2 -ggdb3 -Wall -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/ -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/linux
+CFLAGS=-O2 -ggdb3 -Wall -fPIC -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/ -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/linux
 
 CXX=clang++
 CXXFLAGS= ${CFLAGS} -std=c++11 -fPIC
@@ -35,7 +35,7 @@ benchcomponents: $(BENCH_OBJ)
 sharedlibrary: $(SHARED_LIBRARY_TARGET)
 
 $(SHARED_LIBRARY_TARGET): $(INDEXES_OBJ) $(MAIN_OBJ)
-	$(CC) -fPIC $(INDEXES_OBJ) $(MAIN_OBJ) -o $(SHARED_LIBRARY_TARGET) -shared
+	$(CC) $(INDEXES_OBJ) $(MAIN_OBJ) -o $(SHARED_LIBRARY_TARGET) -shared
 
 
 clean:
