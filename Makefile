@@ -18,6 +18,7 @@ SHARED_LIBRARY_TARGET=kvell_jni.so
 
 all: makefile.dep main microbench benchcomponents sharedlibrary
 
+
 makefile.dep: *.[Cch] indexes/*.[ch] indexes/*.cc
 	for i in *.[Cc]; do ${CC} -MM "$${i}" ${CFLAGS}; done > $@
 	for i in indexes/*.c; do ${CC} -MM "$${i}" -MT $${i%.c}.o ${CFLAGS}; done >> $@
@@ -34,8 +35,8 @@ benchcomponents: $(BENCH_OBJ)
 
 sharedlibrary: $(SHARED_LIBRARY_TARGET)
 
-$(SHARED_LIBRARY_TARGET): $(INDEXES_OBJ) $(MAIN_OBJ)
-	$(CC) $(INDEXES_OBJ) $(MAIN_OBJ) -o $(SHARED_LIBRARY_TARGET) -shared
+$(SHARED_LIBRARY_TARGET): $(MAIN_OBJ)
+	$(CC) $(MAIN_OBJ) -o $(SHARED_LIBRARY_TARGET) -shared
 
 
 clean:
