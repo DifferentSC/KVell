@@ -28,6 +28,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
 }
 
 void do_nothing_callback(struct slab_callback *cb, void *item) {
+    printf("Calling callback!");
     cb->is_finished = 1;
 }
 
