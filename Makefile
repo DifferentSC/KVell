@@ -3,7 +3,7 @@ CC=clang  #If you use GCC, add -fno-strict-aliasing to the CFLAGS because the Go
 CFLAGS=-O2 -ggdb3 -Wall -fPIC
 
 CXX=clang++
-CXXFLAGS= ${CFLAGS} -std=c++11
+CXXFLAGS= ${CFLAGS} -std=c++11 -fPIC
 
 LDLIBS=-lm -lpthread -lstdc++
 
@@ -12,7 +12,7 @@ MAIN_OBJ=main.o slab.o freelist.o ioengine.o pagecache.o stats.o random.o slabwo
 MICROBENCH_OBJ=microbench.o random.o stats.o utils.o ${INDEXES_OBJ}
 BENCH_OBJ=benchcomponents.o pagecache.o random.o $(INDEXES_OBJ)
 SHARED_LIBRARY_TARGET=kvell_jni.so
-LDFLAGS=-shared
+# LDFLAGS=-shared
 
 .PHONY: all clean
 
@@ -35,7 +35,7 @@ benchcomponents: $(BENCH_OBJ)
 sharedlibrary: $(SHARED_LIBRARY_TARGET)
 
 $(SHARED_LIBRARY_TARGET):
-	$(CC) $(CFLAGS) -o -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/ $(SHARED_LIBRARY_TARGET) $(INDEXES_OBJ) $(MAIN_OBJ) $(MICROBENCH_OBJ)
+	$(CC) $(CFLAGS) -o -I/usr/lib/jvm/java-1.8.0-openjdk-amd64/include/ $(SHARED_LIBRARY_TARGET) $(INDEXES_OBJ) $(MAIN_OBJ) $(MICROBENCH_OBJ) -shared
 
 
 clean:
