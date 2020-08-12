@@ -111,24 +111,13 @@ static size_t submit_slab_buffer(struct slab_context *ctx, int buffer_idx) {
 }
 
 static uint64_t get_hash_for_item(char *item) {
-   printf("call get_hash_for_item()\n");
-   fflush(stdout);
    struct item_metadata *meta = (struct item_metadata *)item;
-   printf("Casted metadata\n");
-   fflush(stdout);
    char *item_key = &item[sizeof(*meta)];
-   printf("Fetch item_key\n");
-   fflush(stdout);
    // If key_size is smaller than 8 bytes, add zeros to prevent segfault.
-   printf("meta->key_size = %zu\n", meta->key_size);
-   fflush(stdout);
    if (meta->key_size < 8) {
-      char* hash_mem = malloc(8); // This is equivalent to memset.
-      memset(hash_mem, 0, 8);
+      uint64_t hash = 0; // This is equivalent to memset.
       int shift = 8 - meta->key_size;
-      memcpy(hash_mem + shift, item_key, meta->key_size);
-      uint64_t hash = *(uint64_t*)hash_mem;
-      free(hash_mem);
+      memcpy((char*)&hash + shift, item_key, meta->key_size);
       return hash;
    } else {
       return *(uint64_t*)item_key;

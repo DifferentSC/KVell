@@ -38,8 +38,6 @@ void no_pass_item_callback(struct slab_callback *cb, void *item) {
 }
 
 void busy_wait_with_noop(struct slab_callback *cb) {
-    printf("I'm busy for waiting...\n");
-    fflush(stdout);
     while(cb->is_finished==0)
         NOP10();
 }
