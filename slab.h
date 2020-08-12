@@ -2,6 +2,7 @@
 #define SLAB_H 1
 
 #include "ioengine.h"
+#include <pthread.h>
 
 struct slab;
 struct slab_callback;
@@ -35,6 +36,7 @@ struct slab_callback {
    void *payload;
    void *item;
    int is_finished;
+   void *result;
 
    // Private
    enum slab_action action;
