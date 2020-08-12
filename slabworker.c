@@ -117,7 +117,7 @@ static uint64_t get_hash_for_item(char *item) {
    if (meta->key_size < 8) {
       uint64_t hash = 0; // This is equivalent to memset.
       int shift = 8 - meta->key_size;
-      memcpy(item_key, (char*)&hash + shift, meta->key_size);
+      memcpy((char*)&hash + shift, item_key, meta->key_size);
       return hash;
    } else {
       return *(uint64_t*)item_key;
