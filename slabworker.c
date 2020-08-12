@@ -116,7 +116,7 @@ static uint64_t get_hash_for_item(char *item) {
    // If key_size is smaller than 8 bytes, add zeros to prevent segfault.
    if (meta->key_size < 8) {
       char* hash_mem = malloc(8); // This is equivalent to memset.
-      memset(hash_mem, 0);
+      memset(hash_mem, 0, 8);
       int shift = 8 - meta->key_size;
       memcpy(hash_mem + shift, item_key, meta->key_size);
       uint64_t hash = *(uint64_t*)hash_mem;
