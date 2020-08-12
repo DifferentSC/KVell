@@ -111,19 +111,20 @@ static size_t submit_slab_buffer(struct slab_context *ctx, int buffer_idx) {
 }
 
 static uint64_t get_hash_for_item(char *item) {
-   /*
    struct item_metadata *meta = (struct item_metadata *)item;
    char *item_key = &item[sizeof(*meta)];
    // If key_size is smaller than 8 bytes, add zeros to prevent segfault.
    if (meta->key_size < 8) {
-      uint64_t hash = 0; // This is equivalent to memset.
+      char* hash_mem = malloc(8); // This is equivalent to memset.
+      memset(hash_mem, 0);
       int shift = 8 - meta->key_size;
-      memcpy((char*)&hash + shift, item_key, meta->key_size);
+      memcpy(hash_mem + shift, item_key, meta->key_size);
+      uint64_t hash = *(uint64_t*)hash_mem;
+      free(hash_mem);
       return hash;
    } else {
       return *(uint64_t*)item_key;
-   }*/
-   return 1;
+   }
 }
 
 /* Requests are statically attributed to workers using this function */
