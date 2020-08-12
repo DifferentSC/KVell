@@ -2,7 +2,6 @@
 #define SLAB_H 1
 
 #include "ioengine.h"
-#include <pthread.h>
 
 struct slab;
 struct slab_callback;
