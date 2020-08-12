@@ -148,7 +148,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1nativ
     char *item_key = cb->item + sizeof(*meta);
     memcpy(item_key, key_bytes, key_size);
     kv_remove_async(cb);
-    busy_wait_with_noop();
+    busy_wait_with_noop(cb);
     free_cb(cb);
 }
 
