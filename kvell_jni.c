@@ -86,6 +86,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     cb->payload = NULL;
     meta->key_size = key_size;
     memcpy(&item[sizeof(*meta)], key_bytes, key_size);
+    cb->item = item;
     cb->is_finished = 0;
     kv_read_async(cb);
     // busy waiting with NOP.
