@@ -86,7 +86,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     memcpy(&item[sizeof(*meta)], key_bytes, key_size);
     kv_read_async(cb);
     // busy waiting with NOP.
-    busy_wait_with_noop();
+    busy_wait_with_noop(cb);
 
     // Key does not exist, then return NULL.
     if (cb->result == NULL) {
@@ -124,7 +124,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     memcpy(&item[sizeof(*meta) + key_size], value_bytes, value_size);
     cb->item = item;
     kv_add_or_update_async(cb);
-    busy_wait_with_noop();
+    busy_wait_with_noop(cb);
     free_cb(cb);
 }
 
@@ -176,7 +176,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_add_1native
     memcpy(&item[sizeof(*meta) + key_size], value_bytes, value_size);
     cb->item = item;
     kv_add_async(cb);
-    busy_wait_with_noop();
+    busy_wait_with_noop(cb);
     free(cb);
 }
 
