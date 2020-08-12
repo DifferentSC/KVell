@@ -114,7 +114,11 @@ static uint64_t get_hash_for_item(char *item) {
    printf("call get_hash_for_item()\n");
    fflush(stdout);
    struct item_metadata *meta = (struct item_metadata *)item;
+   printf("Casted metadata\n");
+   fflush(stdout);
    char *item_key = &item[sizeof(*meta)];
+   printf("Fetch item_key\n");
+   fflush(stdout);
    // If key_size is smaller than 8 bytes, add zeros to prevent segfault.
    printf("meta->key_size = %zu\n", meta->key_size);
    fflush(stdout);
