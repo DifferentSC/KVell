@@ -38,7 +38,7 @@ void no_pass_item_callback(struct slab_callback *cb, void *item) {
 }
 
 void busy_wait_with_noop(struct slab_callback *cb) {
-    while(cb->is_finished!=1)
+    while(cb->is_finished==0)
         NOP10();
 }
 
@@ -84,6 +84,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     cb->payload = NULL;
     meta->key_size = key_size;
     memcpy(&item[sizeof(*meta)], key_bytes, key_size);
+    cb->is_finished = 0;
     kv_read_async(cb);
     // busy waiting with NOP.
     busy_wait_with_noop(cb);
