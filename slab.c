@@ -218,6 +218,8 @@ void update_item_async_cb1(struct slab_callback *callback) {
    printf("fetched metadata...\n");
    fflush(stdout);
    off_t offset_in_page = item_in_page_offset(s, idx);
+   printf("get offset_in_page...\n");
+   fflush(stdout);
    struct item_metadata *old_meta = (void*)(&disk_page[offset_in_page]);
    printf("fetched old metadata...\n");
    fflush(stdout);
