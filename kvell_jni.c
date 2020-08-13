@@ -118,14 +118,14 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size + value_size);
     meta = (struct item_metadata *)item;
-    cb->cb = no_pass_item_callback;
-    cb->payload = NULL;
     meta->key_size = key_size;
     meta->value_size = value_size;
     memcpy(&item[sizeof(*meta)], key_bytes, key_size);
     memcpy(&item[sizeof(*meta) + key_size], value_bytes, value_size);
+    cb->cb = no_pass_item_callback;
+    cb->payload = NULL;
     cb->item = item;
-    cb->is_finsihed = 0;
+    cb->is_finished = 0;
     kv_add_or_update_async(cb);
     busy_wait_with_noop(cb);
     free_cb(cb);
