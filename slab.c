@@ -208,13 +208,19 @@ void update_item_async_cb2(struct slab_callback *callback) {
 
 void update_item_async_cb1(struct slab_callback *callback) {
    char *disk_page = callback->lru_entry->page;
+   printf("update_item_async_cb1 is called...\n");
+   fflush(stdout);
 
    struct slab *s = callback->slab;
    size_t idx = callback->slab_idx;
    void *item = callback->item;
    struct item_metadata *meta = item;
+   printf("fetched metadata...\n");
+   fflush(stdout);
    off_t offset_in_page = item_in_page_offset(s, idx);
    struct item_metadata *old_meta = (void*)(&disk_page[offset_in_page]);
+   printf("fetched old metadata...\n");
+   fflush(stdout);
 
    printf("Before sanity check...\n");
    fflush(stdout);
