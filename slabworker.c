@@ -266,7 +266,7 @@ again:
             }
             break;
          case ADD_OR_UPDATE:
-            print("e is false? or true? + %d", (e==NULL));
+            printf("e is false? or true? + %d", (e==NULL));
             fflush(stdout);
             if(!e) {
                callback->action = ADD;
