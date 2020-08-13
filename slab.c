@@ -273,8 +273,8 @@ void update_item_async(struct slab_callback *callback) {
 void add_item_async_cb1(struct slab_callback *callback) {
    
    struct slab *s = callback->slab;
-   
-   printf("update_item_async_cb1 is called...\n");
+
+   printf("add_item_async_cb1 is called...\n");
    fflush(stdout);
    struct lru *lru_entry = callback->lru_entry;
    if(lru_entry == NULL) { // no free page, append
