@@ -267,14 +267,14 @@ again:
             break;
          case ADD_OR_UPDATE:
             if(!e) {
-               printf("e is NULL! ADD_OR_UPDATE is ADD");
+               printf("e is NULL! ADD_OR_UPDATE is ADD\n");
                fflush(stdout);
                callback->action = ADD;
                callback->slab = get_slab(ctx, callback->item);
                callback->slab_idx = -1;
                add_item_async(callback);
             } else {
-               printf("e is not null! ADD_OR_UPDATE is UPDATE");
+               printf("e is not null! ADD_OR_UPDATE is UPDATE\n");
                fflush(stdout);
                callback->action = UPDATE;
                callback->slab = e->slab;
