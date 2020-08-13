@@ -216,6 +216,8 @@ void update_item_async_cb1(struct slab_callback *callback) {
    off_t offset_in_page = item_in_page_offset(s, idx);
    struct item_metadata *old_meta = (void*)(&disk_page[offset_in_page]);
 
+   printf("Before sanity check...\n");
+   fflush(stdout);
    if(callback->action == UPDATE) {
       size_t new_key_size = meta->key_size;
       size_t old_key_size = old_meta->key_size;
@@ -229,15 +231,26 @@ void update_item_async_cb1(struct slab_callback *callback) {
          die("Updating an item, but key mismatch! Likely this is because 2 keys have the same prefix in the index. TODO: make the index more robust by detecting that 2 keys have the same prefix and transforming the prefix -> slab_idx to prefix -> [ { full key 1, slab_idx1 }, { full key 2, slab_idx2 } ]\n");
    }
 
+   printf("After sanity check...\n");
+   fflush(stdout);
    meta->rdt = get_rdt(s->ctx);
-   if(meta->key_size == -1)
+   printf("Get RDT...\n");
+   fflush(stdout);
+   if(meta->key_size == -1) {
       memcpy(&disk_page[offset_in_page], meta, sizeof(*meta));
-   else if(get_item_size(item) > s->item_size)
+      printf("memcpy on meta...\n");
+      fflush(stdout);
+   } else if(get_item_size(item) > s->item_size) {
       die("Trying to write an item that is too big for its slab\n");
-   else
+   } else {
+      printf("memcpy on meta...\n");
+      fflush(stdout);
       memcpy(&disk_page[offset_in_page], item, get_item_size(item));
+   }
 
    callback->io_cb = update_item_async_cb2;
+   printf("write_page_async...\n");
+   fflush(stdout);
    write_page_async(callback);
 }
 

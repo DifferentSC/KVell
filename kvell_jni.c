@@ -125,6 +125,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     memcpy(&item[sizeof(*meta)], key_bytes, key_size);
     memcpy(&item[sizeof(*meta) + key_size], value_bytes, value_size);
     cb->item = item;
+    cb->is_finsihed = 0;
     kv_add_or_update_async(cb);
     busy_wait_with_noop(cb);
     free_cb(cb);
