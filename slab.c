@@ -271,8 +271,11 @@ void update_item_async(struct slab_callback *callback) {
  * If a page with an empty spot exists, we have to scan it to find a suitable spot.
  */
 void add_item_async_cb1(struct slab_callback *callback) {
+   
    struct slab *s = callback->slab;
-
+   
+   printf("update_item_async_cb1 is called...\n");
+   fflush(stdout);
    struct lru *lru_entry = callback->lru_entry;
    if(lru_entry == NULL) { // no free page, append
       if(s->last_item >= s->nb_max_items)
@@ -301,7 +304,7 @@ void add_item_async(struct slab_callback *callback) {
  */
 void remove_item_by_idx_async_cb1(struct slab_callback *callback) {
    char *disk_page = callback->lru_entry->page;
-
+   
    struct slab *s = callback->slab;
    size_t idx = callback->slab_idx;
 
