@@ -4,7 +4,15 @@
 static uint64_t get_prefix_for_item(char *item) {
    struct item_metadata *meta = (struct item_metadata *)item;
    char *item_key = &item[sizeof(*meta)];
-   return *(uint64_t*)item_key;
+   // If key_size is smaller than 8 bytes, add zeros to prevent segfault.
+   if (meta->key_size < 8) {
+      uint64_t prefix = 0; // This is equivalent to memset.
+      int shift = 8 - meta->key_size;
+      memcpy((char*)&prefix + shift, item_key, meta->key_size);
+      return prefix;
+   } else {
+      return *(uint64_t*)item_key;
+   }
 }
 
 /* In memory RB-Tree */
