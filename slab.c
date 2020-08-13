@@ -215,7 +215,7 @@ void update_item_async_cb1(struct slab_callback *callback) {
    size_t idx = callback->slab_idx;
    void *item = callback->item;
    struct item_metadata *meta = item;
-   printf("fetched metadata...\n");
+   printf("fetched metadata... idx = %d\n", callback->slab_idx);
    fflush(stdout);
    off_t offset_in_page = item_in_page_offset(s, idx);
    printf("get offset_in_page...\n");
