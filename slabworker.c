@@ -230,10 +230,10 @@ again:
       index_entry_t *e = NULL;
       if(action != READ_NO_LOOKUP)
          e = memory_index_lookup(ctx->worker_id, callback->item);
-      if (e)
-         printf("e is NULL!");
+      if (!e)
+         printf("e is NULL!\n");
       else
-         printf("e is not NULL!");
+         printf("e is not NULL!\n");
       fflush(stdout);
       switch(action) {
          case READ_NO_LOOKUP:
@@ -278,8 +278,6 @@ again:
                callback->slab_idx = -1;
                add_item_async(callback);
             } else {
-               printf("e is not null! ADD_OR_UPDATE is UPDATE\n");
-               fflush(stdout);
                callback->action = UPDATE;
                callback->slab = e->slab;
                callback->slab_idx = e->slab_idx;
