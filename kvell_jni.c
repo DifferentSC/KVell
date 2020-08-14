@@ -128,11 +128,19 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     meta->value_size = value_size;
     memcpy(&item[sizeof(*meta)], key_bytes, key_size);
     memcpy(&item[sizeof(*meta) + key_size], value_bytes, value_size);
-    cb->cb = no_pass_item_callback;
     cb->payload = NULL;
     cb->item = item;
     cb->is_finished = 0;
-    kv_add_or_update_async(cb);
+    // Look up to determine whether to add or update.
+    e = memory_index_lookup(cb, item);
+    if (!e) {
+        // Not existing key! Let's add.
+        cb->cb = add_item_callback;
+        kv_add_async(cb);
+    } else {
+        cb->cb = no_pass_item_callback;
+        kv_update_async(cb);
+    }
     busy_wait_with_noop(cb);
     free_cb(cb);
 }
