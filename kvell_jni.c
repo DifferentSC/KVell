@@ -38,7 +38,7 @@ void no_pass_item_callback(struct slab_callback *cb, void *item) {
 }
 
 void add_item_callback(struct slab_callback *cb, void *item) {
-    memory_index_add(cb, item);
+    memory_index_add(cb, item); // Why should I do this on my own? :(
     cb->is_finished = 1;
 }
 
@@ -97,10 +97,10 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
 
     // Key does not exist, then return NULL.
     if (cb->result == NULL) {
-
         return NULL;
     }
-    // Copy to Java
+    // Retrieve item
+    meta = (struct item_metadata*)cb->result;
     jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
     jbyte *item_value = cb->result + sizeof(*meta) + key_size;
     (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
