@@ -37,6 +37,11 @@ void no_pass_item_callback(struct slab_callback *cb, void *item) {
     cb->is_finished = 1;
 }
 
+void add_item_callback(struct slab_callback *cb, void *item) {
+    memory_index_add(cb, item);
+    cb->is_finished = 1;
+}
+
 void busy_wait_with_noop(struct slab_callback *cb) {
     while(cb->is_finished==0)
         NOP10();
@@ -92,6 +97,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
 
     // Key does not exist, then return NULL.
     if (cb->result == NULL) {
+
         return NULL;
     }
     // Copy to Java
@@ -147,7 +153,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_add_1native
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size + value_size);
     meta = (struct item_metadata *)item;
-    cb->cb = no_pass_item_callback;
+    cb->cb = add_item_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
     meta->value_size = value_size;
