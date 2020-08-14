@@ -118,12 +118,8 @@ static uint64_t get_hash_for_item(char *item) {
       uint64_t hash = 0; // This is equivalent to memset.
       int shift = 8 - meta->key_size;
       memcpy((char*)&hash + shift, item_key, meta->key_size);
-      printf("Hash = %zu", hash);
-      fflush(stdout);
       return hash;
    } else {
-      printf("Hash = %zu", *(uint64_t*)item_key);
-      fflush(stdout);
       return *(uint64_t*)item_key;
    }
 }
@@ -131,6 +127,8 @@ static uint64_t get_hash_for_item(char *item) {
 /* Requests are statically attributed to workers using this function */
 static struct slab_context *get_slab_context(void *item) {
    uint64_t hash = get_hash_for_item(item);
+   printf("Hash = %zu\n", hash);
+   fflush(stdout);
    return &slab_contexts[hash%get_nb_workers()];
 }
 
