@@ -118,8 +118,12 @@ static uint64_t get_hash_for_item(char *item) {
       uint64_t hash = 0; // This is equivalent to memset.
       int shift = 8 - meta->key_size;
       memcpy((char*)&hash + shift, item_key, meta->key_size);
+      printf("Hash = %zu", hash);
+      fflush(stdout);
       return hash;
    } else {
+      printf("Hash = %zu", *(uint64_t*)item_key);
+      fflush(stdout);
       return *(uint64_t*)item_key;
    }
 }

@@ -242,7 +242,7 @@ void update_item_async_cb1(struct slab_callback *callback) {
    printf("After sanity check...\n");
    fflush(stdout);
    meta->rdt = get_rdt(s->ctx);
-   printf("Get RDT...\n");
+   printf("Get RDT... offset_inpage = %d\n", offset_in_page);
    fflush(stdout);
    if(meta->key_size == -1) {
       memcpy(&disk_page[offset_in_page], meta, sizeof(*meta));
