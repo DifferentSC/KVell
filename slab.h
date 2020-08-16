@@ -60,7 +60,7 @@ struct slab_context {
    struct pagecache *pagecache __attribute__((aligned(64)));
    struct io_context *io_ctx;
    uint64_t rdt;                                         // Latest timestamp
-}
+};
 
 struct slab* create_slab(struct slab_context *ctx, int worker_id, size_t item_size, struct slab_callback *callback);
 struct slab* resize_slab(struct slab *s);
