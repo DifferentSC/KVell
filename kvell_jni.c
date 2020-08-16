@@ -34,11 +34,9 @@ void pass_item_callback(struct slab_callback *cb, void *item) {
 }
 
 void no_pass_item_callback(struct slab_callback *cb, void *item) {
-    cb->is_finished = 1;
-}
-
-void add_item_callback(struct slab_callback *cb, void *item) {
-    memory_index_add(cb, item); // Why should I do this on my own? :(
+    if (cb->is_new_item) {
+        memory_index_add(cb, item); // Why should I do this on my own? :(
+    }
     cb->is_finished = 1;
 }
 
@@ -70,15 +68,7 @@ void destory_cond(slab_callback *cb) {
     free(cb->c);
 }*/
 
-/*
- * Class:     edu_useoul_streamix_kvell_flink_KVell
- * Method:    read_native
- * Signature: ([B)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1native
-        (JNIEnv *env, jobject object, jbyteArray key) {
-    int key_size = (*env)->GetArrayLength(env, key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+void* read_internal(jbyte* key_bytes, int key_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -94,31 +84,13 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     kv_read_async(cb);
     // busy waiting with NOP.
     busy_wait_with_noop(cb);
-
-    // Key does not exist, then return NULL.
-    if (cb->result == NULL) {
-        return NULL;
-    }
-    // Retrieve item
-    meta = (struct item_metadata*)cb->result;
-    jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
-    jbyte *item_value = cb->result + sizeof(*meta) + key_size;
-    (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
+    void* result = cb->result;
     free_cb(cb);
-    return javaBytes;
+    return result;
+
 }
 
-/*
- * Class:     edu_useoul_streamix_kvell_flink_KVell
- * Method:    write_native
- * Signature: ([B[B)V
- */
-JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
-(JNIEnv *env, jobject object, jbyteArray key, jbyteArray value) {
-    int key_size = (*env)->GetArrayLength(env, key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    int value_size = (*env)->GetArrayLength(env, value);
-    jbyte *value_bytes = (*env)->GetByteArrayElements(env, value, NULL);
+void update_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -131,32 +103,14 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     cb->payload = NULL;
     cb->item = item;
     cb->is_finished = 0;
-    // First, let's look up to determine whether to add or update.
-    struct index_entry *e = memory_index_lookup(get_slab_context(item)->worker_id, item);
-    if (!e) {
-        // Non-existing key! Let's add.
-        cb->cb = add_item_callback;
-        kv_add_async(cb);
-    } else {
-        // Key exists... Let's update.
-        cb->cb = no_pass_item_callback;
-        kv_update_async(cb);
-    }
+    cb->cb = no_pass_item_callback;
+    kv_add_or_update_async(cb);
     busy_wait_with_noop(cb);
     free_cb(cb);
+
 }
 
-/*
- * Class:     edu_useoul_streamix_kvell_flink_KVell
- * Method:    add_native
- * Signature: ([B[B)V
- */
-JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_add_1native
-(JNIEnv *env, jobject object, jbyteArray key, jbyteArray value) {
-    int key_size = (*env)->GetArrayLength(env, key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    int value_size = (*env)->GetArrayLength(env, value);
-    jbyte *value_bytes = (*env)->GetByteArrayElements(env, value, NULL);
+void add_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -173,17 +127,10 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_add_1native
     kv_add_async(cb);
     busy_wait_with_noop(cb);
     free_cb(cb);
+
 }
 
-/*
- * Class:     edu_useoul_streamix_kvell_flink_KVell
- * Method:    delete_native
- * Signature: ([B)V
- */
-JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1native
-(JNIEnv *env, jobject object, jbyteArray key) {
-    int key_size = (*env)->GetArrayLength(env, key);
-    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+void delete_internal(jbyte* key_bytes, int key_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
@@ -197,6 +144,73 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1nativ
     kv_remove_async(cb);
     busy_wait_with_noop(cb);
     free_cb(cb);
+    
+}
+
+/*
+ * Class:     edu_useoul_streamix_kvell_flink_KVell
+ * Method:    read_native
+ * Signature: ([B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1native
+        (JNIEnv *env, jobject object, jbyteArray key) {
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+
+    void* result = read_internal(key_bytes, key_size);
+
+    // Key does not exist, then return NULL.
+    if (result == NULL) {
+        return NULL;
+    }
+    // Retrieve item
+    struct item_metadata* meta = (struct item_metadata*)cb->result;
+    jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
+    jbyte *item_value = result + sizeof(*meta) + key_size;
+    (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
+    return javaBytes;
+}
+
+/*
+ * Class:     edu_useoul_streamix_kvell_flink_KVell
+ * Method:    write_native
+ * Signature: ([B[B)V
+ */
+JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
+(JNIEnv *env, jobject object, jbyteArray key, jbyteArray value) {
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    int value_size = (*env)->GetArrayLength(env, value);
+    jbyte *value_bytes = (*env)->GetByteArrayElements(env, value, NULL);
+
+    update_internal(key_bytes, key_size, value_bytes, value_size);
+}
+
+/*
+ * Class:     edu_useoul_streamix_kvell_flink_KVell
+ * Method:    add_native
+ * Signature: ([B[B)V
+ */
+JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_add_1native
+(JNIEnv *env, jobject object, jbyteArray key, jbyteArray value) {
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    int value_size = (*env)->GetArrayLength(env, value);
+    jbyte *value_bytes = (*env)->GetByteArrayElements(env, value, NULL);
+    
+    add_internal(key_bytes, key_size, value_bytes, value_size);
+}
+
+/*
+ * Class:     edu_useoul_streamix_kvell_flink_KVell
+ * Method:    delete_native
+ * Signature: ([B)V
+ */
+JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1native
+(JNIEnv *env, jobject object, jbyteArray key) {
+    int key_size = (*env)->GetArrayLength(env, key);
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+
 }
 
 /*
@@ -208,43 +222,21 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
 (JNIEnv *env, jobject object, jbyteArray key, jbyteArray item) {
     int key_size = (*env)->GetArrayLength(env, key);
     jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-
-    // Read first
-    struct slab_callback *cb = malloc(sizeof(*cb));
-    struct item_metadata *meta;
-    cb->item = malloc(sizeof(*meta) + key_size);
-    meta = (struct item_metadata *)item;
-    cb->cb = pass_item_callback;
-    cb->payload = NULL;
-    meta->key_size = key_size;
-    char *item_key = cb->item + sizeof(*meta);
-    memcpy(item_key, key_bytes, key_size);
-    kv_read_async(cb);
-    // busy waiting (could it be changed to conditional variables?)
-    while(cb->is_finished != 1);
-
-    jbyte *item_value = cb->item + sizeof(*meta) + key_size;
-    // Then let's append.
     int item_size = (*env)->GetArrayLength(env, item);
     jbyte *item_bytes = (*env)->GetByteArrayElements(env, item, NULL);
 
-    struct slab_callback *append_cb = malloc(sizeof(*cb));
-    append_cb->item = malloc(sizeof(struct meta*) + meta->key_size + meta->value_size + item_size);
-    struct item_metadata *append_meta = (struct item_metadata *)item;
-    memcpy(append_cb->item + sizeof(struct meta*), key_bytes, meta->key_size);
-    memcpy(append_cb->item + sizeof(struct meta*) + meta->key_size, item_value, meta->value_size);
-    memcpy(append_cb->item + sizeof(struct meta*) + meta->key_size + meta->value_size, item_bytes, item_size);
-    append_cb->cb = pass_item_callback;
-    append_cb->payload = NULL;
-    append_meta->key_size = key_size;
-    append_meta->value_size = meta->value_size + item_size;
-    kv_add_or_update_async(append_cb);
+    // Read first to append.
+    void* result = read_internal(key_bytes, key_size);
 
-    while(cb->is_finished != 1)
-        NOP10();
-
-    free(cb->item);
-    free(cb);
-    free(append_cb->item);
-    free(append_cb->item);
+    if (result == NULL) {
+        // Just add when there is no existing value.
+        add_internal(key_bytes, key_size, value_bytes, value_size);
+    } else {
+        // Otherwise, append to existing value
+        struct item_metadata* old_meta = (struct item_metadata*)result;
+        jbyte* new_value_bytes = malloc(old_meta->value_size + item_size);
+        memcpy(new_value_bytes, result + sizeof(*old_meta) + old_meta->key_size, old_meta->value_size);
+        memcpy(new_value_bytes + old_meta->value_size, item_size);
+        update_internal(key_bytes, key_size, new_value_bytes, old_meta->value_size + item_size);
+    }
 }
