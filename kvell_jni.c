@@ -164,7 +164,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
         return NULL;
     }
     // Retrieve item
-    struct item_metadata* meta = (struct item_metadata*)cb->result;
+    struct item_metadata* meta = (struct item_metadata*)result;
     jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
     jbyte *item_value = result + sizeof(*meta) + key_size;
     (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
@@ -211,6 +211,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_delete_1nativ
     int key_size = (*env)->GetArrayLength(env, key);
     jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
 
+    delete_internal(key_bytes, key_size);
 }
 
 /*
@@ -230,13 +231,13 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
 
     if (result == NULL) {
         // Just add when there is no existing value.
-        add_internal(key_bytes, key_size, value_bytes, value_size);
+        add_internal(key_bytes, key_size, item_bytes, item_size);
     } else {
         // Otherwise, append to existing value
         struct item_metadata* old_meta = (struct item_metadata*)result;
         jbyte* new_value_bytes = malloc(old_meta->value_size + item_size);
         memcpy(new_value_bytes, result + sizeof(*old_meta) + old_meta->key_size, old_meta->value_size);
-        memcpy(new_value_bytes + old_meta->value_size, item_size);
+        memcpy(new_value_bytes + old_meta->value_size, item_bytes, item_size);
         update_internal(key_bytes, key_size, new_value_bytes, old_meta->value_size + item_size);
     }
 }
