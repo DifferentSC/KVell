@@ -134,14 +134,17 @@ void delete_internal(jbyte* key_bytes, int key_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
     struct item_metadata *meta;
-    cb->item = malloc(sizeof(*meta) + key_size);
-    meta = (struct item_metadata *)(cb->item);
+    char* item = malloc(sizeof(*meta) + key_size);
+    meta = (struct item_metadata *)item;
     cb->cb = no_pass_item_callback;
+
     cb->payload = NULL;
     meta->key_size = key_size;
-    char *item_key = cb->item + sizeof(*meta);
-    memcpy(item_key, key_bytes, key_size);
+    memcpy(&item[sizeof(*meta)], key_bytes, key_size);
+    cb->item = item;
+    cb->is_finished = 0;
     kv_remove_async(cb);
+    // busy waiting with NOP.
     busy_wait_with_noop(cb);
     free_cb(cb);
     
