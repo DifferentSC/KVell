@@ -59,6 +59,10 @@ struct slab_context {
 
 /* A file is only managed by 1 worker. File => worker function. */
 int get_worker(struct slab *s) {
+   if (s == NULL){
+      printf("Slab is NULL!\n");
+      fflush(stdout);
+   }
    return s->ctx->worker_id;
 }
 

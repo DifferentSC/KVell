@@ -6,6 +6,7 @@
 struct slab;
 struct slab_callback;
 
+
 /* Header of a slab -- shouldn't contain any pointer as it is persisted on disk. */
 struct slab {
    struct slab_context *ctx;
