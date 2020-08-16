@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_write_1native
     cb->item = item;
     cb->is_finished = 0;
     // First, let's look up to determine whether to add or update.
-    struct index_entry *e = memory_index_lookup(cb, item);
+    struct index_entry *e = memory_index_lookup(get_slab_context(item)->worker_id, item);
     if (!e) {
         // Non-existing key! Let's add.
         cb->cb = add_item_callback;
