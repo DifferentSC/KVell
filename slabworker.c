@@ -44,7 +44,18 @@ int get_nb_disks(void) {
  * Worker context - Each worker thread in KVell has one of these structure
  */
 size_t slab_sizes[] = { 100, 128, 256, 400, 512, 1024, 1365, 2048, 4096 };
-struct slab_context *slab_contexts;
+struct slab_context {
+   size_t worker_id __attribute__((aligned(64)));        // ID
+   struct slab **slabs;                                  // Files managed by this worker
+   struct slab_callback **callbacks;                     // Callbacks associated with the requests
+   volatile size_t buffered_callbacks_idx;               // Number of requests enqueued or in the process of being enqueued
+   volatile size_t sent_callbacks;                       // Number of requests fully enqueued
+   volatile size_t processed_callbacks;                  // Number of requests fully submitted and processed on disk
+   size_t max_pending_callbacks;                         // Maximum number of enqueued requests
+   struct pagecache *pagecache __attribute__((aligned(64)));
+   struct io_context *io_ctx;
+   uint64_t rdt;                                         // Latest timestamp
+} *slab_contexts;
 
 /* A file is only managed by 1 worker. File => worker function. */
 int get_worker(struct slab *s) {
@@ -245,6 +256,7 @@ again:
             } else {
                callback->slab = get_slab(ctx, callback->item);
                callback->slab_idx = -1;
+               callback->is_new_item = 1;
                add_item_async(callback);
             }
             break;
@@ -265,6 +277,7 @@ again:
                callback->action = ADD;
                callback->slab = get_slab(ctx, callback->item);
                callback->slab_idx = -1;
+               callback->is_new_item = 1;
                add_item_async(callback);
             } else {
                callback->action = UPDATE;

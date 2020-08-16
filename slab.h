@@ -35,7 +35,10 @@ struct slab_callback {
    slab_cb_t *cb;
    void *payload;
    void *item;
+
+   // Added to implement synchronous data read/write necessary for stream analytics.
    int is_finished;
+   int is_new_item;
    void *result;
 
    // Private
@@ -47,19 +50,6 @@ struct slab_callback {
    };
    struct lru *lru_entry;
    io_cb_t *io_cb;
-};
-
-struct slab_context {
-   size_t worker_id __attribute__((aligned(64)));        // ID
-   struct slab **slabs;                                  // Files managed by this worker
-   struct slab_callback **callbacks;                     // Callbacks associated with the requests
-   volatile size_t buffered_callbacks_idx;               // Number of requests enqueued or in the process of being enqueued
-   volatile size_t sent_callbacks;                       // Number of requests fully enqueued
-   volatile size_t processed_callbacks;                  // Number of requests fully submitted and processed on disk
-   size_t max_pending_callbacks;                         // Maximum number of enqueued requests
-   struct pagecache *pagecache __attribute__((aligned(64)));
-   struct io_context *io_ctx;
-   uint64_t rdt;                                         // Latest timestamp
 };
 
 struct slab* create_slab(struct slab_context *ctx, int worker_id, size_t item_size, struct slab_callback *callback);
