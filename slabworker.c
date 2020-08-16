@@ -242,10 +242,12 @@ again:
             if(!e) { // Item is not in DB
                callback->slab = NULL;
                callback->slab_idx = -1;
+               callback->is_new_item = 0;
                callback->cb(callback, NULL);
             } else {
                callback->slab = e->slab;
                callback->slab_idx = e->slab_idx;
+               callback->is_new_item = 0;
                read_item_async(callback);
             }
             break;
@@ -263,10 +265,12 @@ again:
             if(!e) {
                callback->slab = NULL;
                callback->slab_idx = -1;
+               callback->is_new_item = 0;
                callback->cb(callback, NULL);
             } else {
                callback->slab = e->slab;
                callback->slab_idx = e->slab_idx;
+               callback->is_new_item = 1;
                assert(get_item_size(callback->item) <= e->slab->item_size); // Item grew, this is not supported currently!
                update_item_async(callback);
             }
@@ -282,6 +286,7 @@ again:
                callback->action = UPDATE;
                callback->slab = e->slab;
                callback->slab_idx = e->slab_idx;
+               callback->is_new_item = 0;
                assert(get_item_size(callback->item) <= e->slab->item_size); // Item grew, this is not supported currently!
                update_item_async(callback);
             }
@@ -290,6 +295,7 @@ again:
             if(!e) {
                callback->slab = NULL;
                callback->slab_idx = -1;
+               callback->is_new_item = 0;
                callback->cb(callback, NULL);
             } else {
                callback->slab = e->slab;
