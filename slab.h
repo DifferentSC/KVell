@@ -5,6 +5,7 @@
 
 struct slab;
 struct slab_callback;
+struct slab_context;
 
 
 /* Header of a slab -- shouldn't contain any pointer as it is persisted on disk. */
@@ -47,6 +48,19 @@ struct slab_callback {
    struct lru *lru_entry;
    io_cb_t *io_cb;
 };
+
+struct slab_context {
+   size_t worker_id __attribute__((aligned(64)));        // ID
+   struct slab **slabs;                                  // Files managed by this worker
+   struct slab_callback **callbacks;                     // Callbacks associated with the requests
+   volatile size_t buffered_callbacks_idx;               // Number of requests enqueued or in the process of being enqueued
+   volatile size_t sent_callbacks;                       // Number of requests fully enqueued
+   volatile size_t processed_callbacks;                  // Number of requests fully submitted and processed on disk
+   size_t max_pending_callbacks;                         // Maximum number of enqueued requests
+   struct pagecache *pagecache __attribute__((aligned(64)));
+   struct io_context *io_ctx;
+   uint64_t rdt;                                         // Latest timestamp
+}
 
 struct slab* create_slab(struct slab_context *ctx, int worker_id, size_t item_size, struct slab_callback *callback);
 struct slab* resize_slab(struct slab *s);
