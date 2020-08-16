@@ -160,7 +160,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     void* result = read_internal(key_bytes, key_size);
 
     // Key does not exist, then return NULL.
-    if (result == NULL || (struct item_metadata*)result->key_size == -1) {
+    if (result == NULL || ((struct item_metadata*)result)->key_size == -1) {
         return NULL;
     }
     // Retrieve item
@@ -229,7 +229,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
     // Read first to append.
     void* result = read_internal(key_bytes, key_size);
 
-    if (result == NULL || (struct item_metadata*)result->key_size == -1) {
+    if (result == NULL || ((struct item_metadata*)result)->key_size == -1) {
         // Just add when there is no existing value.
         add_internal(key_bytes, key_size, item_bytes, item_size);
     } else {
