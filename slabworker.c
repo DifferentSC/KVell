@@ -270,7 +270,7 @@ again:
             } else {
                callback->slab = e->slab;
                callback->slab_idx = e->slab_idx;
-               callback->is_new_item = 1;
+               callback->is_new_item = 0;
                assert(get_item_size(callback->item) <= e->slab->item_size); // Item grew, this is not supported currently!
                update_item_async(callback);
             }
@@ -300,6 +300,7 @@ again:
             } else {
                callback->slab = e->slab;
                callback->slab_idx = e->slab_idx;
+               callback->is_new_item = 0;
                memory_index_delete(ctx->worker_id, callback->item);
                remove_item_async(callback);
             }
