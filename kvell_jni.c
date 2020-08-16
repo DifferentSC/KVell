@@ -116,7 +116,7 @@ void add_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size + value_size);
     meta = (struct item_metadata *)item;
-    cb->cb = add_item_callback;
+    cb->cb = no_pass_item_callback;
     cb->payload = NULL;
     meta->key_size = key_size;
     meta->value_size = value_size;
