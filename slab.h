@@ -5,8 +5,6 @@
 
 struct slab;
 struct slab_callback;
-struct slab_context;
-
 
 /* Header of a slab -- shouldn't contain any pointer as it is persisted on disk. */
 struct slab {
