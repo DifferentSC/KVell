@@ -280,10 +280,6 @@ again:
             if(!e) {
                callback->action = ADD;
                callback->slab = get_slab(ctx, callback->item);
-               if (callback->slab == NULL) {
-                  printf("callback->slab is null...\n");
-                  fflush(stdout);
-               }
                callback->slab_idx = -1;
                callback->is_new_item = 1;
                add_item_async(callback);
@@ -294,6 +290,7 @@ again:
                assert(get_item_size(callback->item) <= e->slab->item_size); // Item grew, this is not supported currently!
                update_item_async(callback);
             }
+            break;
          case DELETE:
             if(!e) {
                callback->slab = NULL;
