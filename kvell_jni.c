@@ -236,11 +236,21 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         // Just add when there is no existing value.
         add_internal(key_bytes, key_size, item_bytes, item_size);
     } else {
-        // Otherwise, append to existing value
-        struct item_metadata* old_meta = (struct item_metadata*)result;
-        jbyte* new_value_bytes = malloc(old_meta->value_size + item_size);
-        memcpy(new_value_bytes, result + sizeof(*old_meta) + old_meta->key_size, old_meta->value_size);
-        memcpy(new_value_bytes + old_meta->value_size, item_bytes, item_size);
-        update_internal(key_bytes, key_size, new_value_bytes, old_meta->value_size + item_size);
+        // Otherwise, add existing value after deleting it.
+        struct item_metadata* meta = (struct item_metadata*)result;
+
+        int old_key_size = meta->key_size;
+        int old_value_size = meta->value_size;
+        void* old_value = malloc(meta->value_size);
+        memcpy(old_value, result + sizeof(*meta) + old_key_size, old_value_size);
+        // We need to delete the data firstly, because KVell does not support updating values with growing length.
+        delete_internal(key_bytes, key_size);
+        // Let's add eappended data.
+        jbyte* new_value_bytes = malloc(old_value_size + item_size);
+        memcpy(new_value_bytes, old_value, old_value_size);
+        memcpy(new_value_bytes + old_value_size, item_bytes, item_size);
+        add_internal(key_bytes, key_size, new_value_bytes, old_value_size + item_size);       
+        free(old_value);
+        free(new_value_bytes);
     }
 }
