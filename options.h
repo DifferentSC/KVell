@@ -3,7 +3,7 @@
 
 #define DEBUG 0
 #define PINNING 0
-#define PATH "/home/ubuntu/kvell_store/slab-%d-%lu-%lu"
+#define PATH "/nvme/kvell_store/slab-%d-%lu-%lu"
 
 /* In memory structures */
 #define RBTREE 0
@@ -22,9 +22,9 @@
 
 /* Page cache */
 //#define PAGE_CACHE_SIZE (PAGE_SIZE * 20480)
-//#define PAGE_CACHE_SIZE (PAGE_SIZE * 7864320) //30GB
+#define PAGE_CACHE_SIZE (PAGE_SIZE * 7864320) //30GB
 //#define PAGE_CACHE_SIZE (PAGE_SIZE * 2621440) //10GB
-#define PAGE_CACHE_SIZE (PAGE_SIZE * 786432) //3GB
+// #define PAGE_CACHE_SIZE (PAGE_SIZE * 786432) //3GB
 #define MAX_PAGE_CACHE (PAGE_CACHE_SIZE / PAGE_SIZE)
 
 /* Free list */
