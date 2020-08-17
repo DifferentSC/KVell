@@ -236,11 +236,14 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         // Just add when there is no existing value.
         add_internal(key_bytes, key_size, item_bytes, item_size);
     } else {
-        // Otherwise, append to existing value
+        // Otherwise, add existing value after deleting it.
         struct item_metadata* old_meta = (struct item_metadata*)result;
+        // We need to delete the data firstly, because current KVell does not support updating values for changing data.
+        delete_internal(key_bytes, key_size);
+        // Let's add to .
         jbyte* new_value_bytes = malloc(old_meta->value_size + item_size);
         memcpy(new_value_bytes, result + sizeof(*old_meta) + old_meta->key_size, old_meta->value_size);
         memcpy(new_value_bytes + old_meta->value_size, item_bytes, item_size);
-        update_internal(key_bytes, key_size, new_value_bytes, old_meta->value_size + item_size);
+        add_internal(key_bytes, key_size, new_value_bytes, old_meta->value_size + item_size);
     }
 }
