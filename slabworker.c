@@ -59,10 +59,10 @@ struct slab_context {
 
 /* A file is only managed by 1 worker. File => worker function. */
 int get_worker(struct slab *s) {
-   if (s == NULL){
+   /*if (s == NULL){
       printf("Slab is NULL!\n");
       fflush(stdout);
-   }
+   }*/
    return s->ctx->worker_id;
 }
 
@@ -131,8 +131,8 @@ static uint64_t get_hash_for_item(char *item) {
 /* Requests are statically attributed to workers using this function */
 static struct slab_context *get_slab_context(void *item) {
    uint64_t hash = get_hash_for_item(item);
-   printf("Hash = %zu\n", hash);
-   fflush(stdout);
+   // printf("Hash = %zu\n", hash);
+   // fflush(stdout);
    return &slab_contexts[hash%get_nb_workers()];
 }
 

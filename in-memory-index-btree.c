@@ -22,8 +22,8 @@ static __thread index_entry_t tmp_entry;
 static pthread_spinlock_t *items_location_locks;
 index_entry_t *btree_worker_lookup(int worker_id, void *item) {
    uint64_t hash = get_prefix_for_item(item);
-   printf("Prefix = %zu\n", hash);
-   fflush(stdout);
+   //printf("Prefix = %zu\n", hash);
+   //fflush(stdout);
    int res = btree_find(items_locations[worker_id], (unsigned char*)&hash, sizeof(hash), &tmp_entry);
    if(res)
       return &tmp_entry;

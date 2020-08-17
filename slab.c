@@ -208,24 +208,24 @@ void update_item_async_cb2(struct slab_callback *callback) {
 
 void update_item_async_cb1(struct slab_callback *callback) {
    char *disk_page = callback->lru_entry->page;
-   printf("update_item_async_cb1 is called...\n");
-   fflush(stdout);
+   // printf("update_item_async_cb1 is called...\n");
+   // fflush(stdout);
 
    struct slab *s = callback->slab;
    size_t idx = callback->slab_idx;
    void *item = callback->item;
    struct item_metadata *meta = item;
-   printf("fetched metadata... idx = %d\n", callback->slab_idx);
-   fflush(stdout);
+   // printf("fetched metadata... idx = %d\n", callback->slab_idx);
+   // fflush(stdout);
    off_t offset_in_page = item_in_page_offset(s, idx);
-   printf("get offset_in_page...\n");
-   fflush(stdout);
+   // printf("get offset_in_page...\n");
+   // fflush(stdout);
    struct item_metadata *old_meta = (void*)(&disk_page[offset_in_page]);
-   printf("fetched old metadata...\n");
-   fflush(stdout);
+   // printf("fetched old metadata...\n");
+   // fflush(stdout);
 
-   printf("Before sanity check...\n");
-   fflush(stdout);
+   // printf("Before sanity check...\n");
+   // fflush(stdout);
    if(callback->action == UPDATE) {
       size_t new_key_size = meta->key_size;
       size_t old_key_size = old_meta->key_size;
@@ -239,26 +239,26 @@ void update_item_async_cb1(struct slab_callback *callback) {
          die("Updating an item, but key mismatch! Likely this is because 2 keys have the same prefix in the index. TODO: make the index more robust by detecting that 2 keys have the same prefix and transforming the prefix -> slab_idx to prefix -> [ { full key 1, slab_idx1 }, { full key 2, slab_idx2 } ]\n");
    }
 
-   printf("After sanity check...\n");
-   fflush(stdout);
+   // printf("After sanity check...\n");
+   // fflush(stdout);
    meta->rdt = get_rdt(s->ctx);
-   printf("Get RDT... offset_inpage = %d\n", offset_in_page);
-   fflush(stdout);
+   // printf("Get RDT... offset_inpage = %d\n", offset_in_page);
+   // fflush(stdout);
    if(meta->key_size == -1) {
       memcpy(&disk_page[offset_in_page], meta, sizeof(*meta));
-      printf("memcpy on meta...\n");
-      fflush(stdout);
+      // printf("memcpy on meta...\n");
+      // fflush(stdout);
    } else if(get_item_size(item) > s->item_size) {
       die("Trying to write an item that is too big for its slab\n");
    } else {
-      printf("memcpy on meta...\n");
-      fflush(stdout);
+      // printf("memcpy on meta...\n");
+      // fflush(stdout);
       memcpy(&disk_page[offset_in_page], item, get_item_size(item));
    }
 
    callback->io_cb = update_item_async_cb2;
-   printf("write_page_async...\n");
-   fflush(stdout);
+   // printf("write_page_async...\n");
+   // fflush(stdout);
    write_page_async(callback);
 }
 
@@ -276,8 +276,8 @@ void add_item_async_cb1(struct slab_callback *callback) {
    
    struct slab *s = callback->slab;
 
-   printf("add_item_async_cb1 is called...\n");
-   fflush(stdout);
+   // printf("add_item_async_cb1 is called...\n");
+   // fflush(stdout);
    struct lru *lru_entry = callback->lru_entry;
    if(lru_entry == NULL) { // no free page, append
       if(s->last_item >= s->nb_max_items)
