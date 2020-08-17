@@ -249,7 +249,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         jbyte* new_value_bytes = malloc(old_value_size + item_size);
         memcpy(new_value_bytes, old_value, old_value_size);
         memcpy(new_value_bytes + old_value_size, item_bytes, item_size);
-        add_internal(key_bytes, key_size, new_value_bytes, old_meta->value_size + item_size);       
+        add_internal(key_bytes, key_size, new_value_bytes, old_value_size + item_size);       
         free(old_value);
         free(new_value_bytes);
     }
