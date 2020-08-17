@@ -240,7 +240,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         struct item_metadata* meta = (struct item_metadata*)result;
 
         int old_key_size = meta->key_size;
-        int old_value_Size = meta->value_size;
+        int old_value_size = meta->value_size;
         void* old_value = malloc(meta->value_size);
         memcpy(old_value, result + sizeof(*meta) + old_key_size, old_value_size);
         // We need to delete the data firstly, because KVell does not support updating values with growing length.
