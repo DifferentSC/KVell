@@ -27,10 +27,14 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
    // Do nothing.
 }
 
+// cb->result should be 
 void pass_item_callback(struct slab_callback *cb, void *item) {
     cb->is_finished = 1;
     // Invalidate existing items and link it to cb, so that client context can fetch data.
-    cb->result = item;
+    struct item_metadata *meta = (struct item_metadata*) item;
+    // Copy the result because the page could be evicted after the callback. This needs to be freed.
+    cb->result = malloc(sizeof(*item) + meta->key_size + meta->value_size);
+    memcpy(cb->result, item, sizeof(*item) + meta->key_size + meta->value_size);
 }
 
 void no_pass_item_callback(struct slab_callback *cb, void *item) {
@@ -86,6 +90,7 @@ void* read_internal(jbyte* key_bytes, int key_size) {
     busy_wait_with_noop(cb);
     void* result = cb->result;
     free_cb(cb);
+    // This needs to be freed.
     return result;
 
 }
@@ -171,6 +176,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_read_1n
     jbyteArray javaBytes = (*env)->NewByteArray(env, meta->value_size);
     jbyte *item_value = result + sizeof(*meta) + key_size;
     (*env)->SetByteArrayRegion(env, javaBytes, 0, meta->value_size, item_value);
+    free(result);
     return javaBytes;
 }
 
@@ -252,5 +258,8 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         add_internal(key_bytes, key_size, new_value_bytes, old_value_size + item_size);       
         free(old_value);
         free(new_value_bytes);
+    }
+    if (result != NULL) {
+        free(result);
     }
 }
