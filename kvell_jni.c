@@ -30,11 +30,15 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
 // cb->result should be 
 void pass_item_callback(struct slab_callback *cb, void *item) {
     cb->is_finished = 1;
-    // Invalidate existing items and link it to cb, so that client context can fetch data.
-    struct item_metadata *meta = (struct item_metadata*) item;
-    // Copy the result because the page could be evicted after the callback. This needs to be freed.
-    cb->result = malloc(sizeof(*meta) + meta->key_size + meta->value_size);
-    memcpy(cb->result, item, sizeof(*meta) + meta->key_size + meta->value_size);
+    if (item != NULL && ((struct item_metadata*)item)->key_size != -1) {
+        // Invalidate existing items and link it to cb, so that client context can fetch data.
+        struct item_metadata *meta = (struct item_metadata*)item;
+        // Copy the result because the page could be evicted after the callback. This needs to be freed.
+        cb->result = malloc(sizeof(*meta) + meta->key_size + meta->value_size);
+        memcpy(cb->result, item, sizeof(*meta) + meta->key_size + meta->value_size);
+    } else {
+        cb->result = NULL;
+    }
 }
 
 void no_pass_item_callback(struct slab_callback *cb, void *item) {
