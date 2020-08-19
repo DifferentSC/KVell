@@ -33,8 +33,8 @@ void pass_item_callback(struct slab_callback *cb, void *item) {
     // Invalidate existing items and link it to cb, so that client context can fetch data.
     struct item_metadata *meta = (struct item_metadata*) item;
     // Copy the result because the page could be evicted after the callback. This needs to be freed.
-    cb->result = malloc(sizeof(*item) + meta->key_size + meta->value_size);
-    memcpy(cb->result, item, sizeof(*item) + meta->key_size + meta->value_size);
+    cb->result = malloc(sizeof(*meta) + meta->key_size + meta->value_size);
+    memcpy(cb->result, item, sizeof(*meta) + meta->key_size + meta->value_size);
 }
 
 void no_pass_item_callback(struct slab_callback *cb, void *item) {
