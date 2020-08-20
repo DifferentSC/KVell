@@ -29,6 +29,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
 
 // cb->result should be 
 void pass_item_callback(struct slab_callback *cb, void *item) {
+    pthread_mutex_lock(&cb->m);
     if (item != NULL && ((struct item_metadata*)item)->key_size > 0) {
         // Invalidate existing items and link it to cb, so that client context can fetch data.
         struct item_metadata *meta = (struct item_metadata*)item;
@@ -39,13 +40,18 @@ void pass_item_callback(struct slab_callback *cb, void *item) {
         cb->result = NULL;
     }
     cb->is_finished = 1;
+    pthread_cond_signal(&cb->c);
+    pthread_mutex_unlock(&cb->m);
 }
 
 void no_pass_item_callback(struct slab_callback *cb, void *item) {
+    pthread_mutex_lock(&cb->m);
     if (cb->is_new_item) {
         memory_index_add(cb, item); // Why should I do this on my own? :(
     }
     cb->is_finished = 1;
+    pthread_cond_signal(&cb->c);
+    pthread_mutex_unlock(&cb->m);
 }
 
 void busy_wait_with_noop(struct slab_callback *cb) {
@@ -54,32 +60,36 @@ void busy_wait_with_noop(struct slab_callback *cb) {
     } while(cb->is_finished==0);
 }
 
+void cond_wait(struct slab_callback *cb) {
+    pthread_mutex_lock(&cb->m);
+    while(cb->is_finished != 1) {
+        pthread_cond_wait(cb->c, cb->m);
+    }
+    pthread_mutex_unlock(&cb->m);
+}
+
 void free_cb(struct slab_callback *cb) {
     if (cb->item != NULL)
         free(cb->item);
     free(cb);
 }
 
-/*
 void initialize_cond(slab_callback *cb) {
     // Iniitialize mutex
-    cb->m = malloc(sizeof(pthread_mutex_t));
-    pthread_mutex_init(cb->m, NULL);
+    pthread_mutex_init(&cb->m, NULL);
     // Initialize conditional variable
-    cb->c = malloc(sizeof(pthread_cond_t));
-    pthread_cond_init(cb->c, NULL);
+    pthread_cond_init(&cb->c, NULL);
 }
 
 void destory_cond(slab_callback *cb) {
-    pthread_mutex_destroy(cb->m);
-    free(cb->m);
-    pthread_cond_destroy(cb->c);
-    free(cb->c);
-}*/
+    pthread_mutex_destroy(&cb->m);
+    pthread_cond_destroy(&cb->c);
+}
 
 void* read_internal(jbyte* key_bytes, int key_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
+    initialize_cond(cb);
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size);
     meta = (struct item_metadata *)item;
@@ -94,6 +104,7 @@ void* read_internal(jbyte* key_bytes, int key_size) {
     // busy waiting with NOP.
     busy_wait_with_noop(cb);
     void* result = cb->result;
+    destroy_cond(cb);
     free_cb(cb);
     // This needs to be freed.
     return result;
@@ -103,6 +114,7 @@ void* read_internal(jbyte* key_bytes, int key_size) {
 void update_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
+    initialize_cond(cb);
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size + value_size);
     meta = (struct item_metadata *)item;
@@ -116,6 +128,7 @@ void update_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int val
     cb->is_finished = 0;
     kv_add_or_update_async(cb);
     busy_wait_with_noop(cb);
+    destroy_cond(cb);
     free_cb(cb);
 
 }
@@ -123,6 +136,7 @@ void update_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int val
 void add_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
+    initialize_cond(cb);
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size + value_size);
     meta = (struct item_metadata *)item;
@@ -136,6 +150,7 @@ void add_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_
     cb->is_finished = 0;
     kv_add_async(cb);
     busy_wait_with_noop(cb);
+    destroy_cond(cb);
     free_cb(cb);
 
 }
@@ -143,6 +158,7 @@ void add_internal(jbyte* key_bytes, int key_size, jbyte* value_bytes, int value_
 void delete_internal(jbyte* key_bytes, int key_size) {
 
     struct slab_callback *cb = malloc(sizeof(*cb));
+    initialize_cond(cb);
     struct item_metadata *meta;
     char* item = malloc(sizeof(*meta) + key_size);
     meta = (struct item_metadata *)item;
@@ -156,8 +172,9 @@ void delete_internal(jbyte* key_bytes, int key_size) {
     kv_remove_async(cb);
     // busy waiting with NOP.
     busy_wait_with_noop(cb);
+    destroy_cond(cb);
     free_cb(cb);
-    
+
 }
 
 /*
