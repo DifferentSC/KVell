@@ -74,14 +74,14 @@ void free_cb(struct slab_callback *cb) {
     free(cb);
 }
 
-void initialize_cond(slab_callback *cb) {
+void initialize_cond(struct slab_callback *cb) {
     // Iniitialize mutex
     pthread_mutex_init(&cb->m, NULL);
     // Initialize conditional variable
     pthread_cond_init(&cb->c, NULL);
 }
 
-void destory_cond(slab_callback *cb) {
+void destory_cond(struct slab_callback *cb) {
     pthread_mutex_destroy(&cb->m);
     pthread_cond_destroy(&cb->c);
 }
