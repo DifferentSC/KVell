@@ -63,7 +63,7 @@ void busy_wait_with_noop(struct slab_callback *cb) {
 void cond_wait(struct slab_callback *cb) {
     pthread_mutex_lock(&cb->m);
     while(cb->is_finished != 1) {
-        pthread_cond_wait(cb->c, cb->m);
+        pthread_cond_wait(&cb->c, &cb->m);
     }
     pthread_mutex_unlock(&cb->m);
 }
