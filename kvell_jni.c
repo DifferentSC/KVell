@@ -81,7 +81,7 @@ void initialize_cond(struct slab_callback *cb) {
     pthread_cond_init(&cb->c, NULL);
 }
 
-void destory_cond(struct slab_callback *cb) {
+void destroy_cond(struct slab_callback *cb) {
     pthread_mutex_destroy(&cb->m);
     pthread_cond_destroy(&cb->c);
 }
