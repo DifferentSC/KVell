@@ -1,5 +1,5 @@
 #include "headers.h"
-#include <stdatomic.h>
+#include <time.h>
 
 /*
  * A slab worker takes care of processing requests sent to the KV-Store.
@@ -95,7 +95,7 @@ static size_t get_slab_buffer(struct slab_context *ctx) {
       if(pending >= ctx->max_pending_callbacks) { // Queue is full, wait
          NOP10();
          if(!PINNING)
-            usleep(2);
+            nanosleep(200);
       } else {
          break;
       }
