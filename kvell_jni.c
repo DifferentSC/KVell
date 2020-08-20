@@ -29,7 +29,6 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
 
 // cb->result should be 
 void pass_item_callback(struct slab_callback *cb, void *item) {
-    cb->is_finished = 1;
     if (item != NULL && ((struct item_metadata*)item)->key_size > 0) {
         // Invalidate existing items and link it to cb, so that client context can fetch data.
         struct item_metadata *meta = (struct item_metadata*)item;
@@ -39,6 +38,7 @@ void pass_item_callback(struct slab_callback *cb, void *item) {
     } else {
         cb->result = NULL;
     }
+    cb->is_finished = 1;
 }
 
 void no_pass_item_callback(struct slab_callback *cb, void *item) {
