@@ -13,7 +13,7 @@
 JNIEXPORT jlong JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_open_1native
         (JNIEnv *env, jobject object) {
     // init workers. Please make sure that databases are deleted.
-    slab_workers_init(1, 8);
+    slab_workers_init(1, 32);
     return 0;
 }
 
@@ -30,7 +30,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_close_1native
 // cb->result should be 
 void pass_item_callback(struct slab_callback *cb, void *item) {
     cb->is_finished = 1;
-    if (item != NULL && ((struct item_metadata*)item)->key_size != -1) {
+    if (item != NULL && ((struct item_metadata*)item)->key_size > 0) {
         // Invalidate existing items and link it to cb, so that client context can fetch data.
         struct item_metadata *meta = (struct item_metadata*)item;
         // Copy the result because the page could be evicted after the callback. This needs to be freed.
@@ -253,6 +253,7 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         int old_value_size = meta->value_size;
         void* old_value = malloc(meta->value_size);
         memcpy(old_value, result + sizeof(*meta) + old_key_size, old_value_size);
+        free(result);
         // We need to delete the data firstly, because KVell does not support updating values with growing length.
         delete_internal(key_bytes, key_size);
         // Let's add eappended data.
@@ -262,8 +263,5 @@ JNIEXPORT void JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_append_1nativ
         add_internal(key_bytes, key_size, new_value_bytes, old_value_size + item_size);       
         free(old_value);
         free(new_value_bytes);
-    }
-    if (result != NULL) {
-        free(result);
     }
 }
