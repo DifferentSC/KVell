@@ -388,7 +388,7 @@ static void *worker_slab_init(void *pdata) {
       volatile size_t pending = ctx->sent_callbacks - ctx->processed_callbacks;
       while(!pending && !io_pending(ctx->io_ctx)) {
          if(!PINNING) {
-            usleep(2);
+            usleep(1);
          } else {
             NOP10();
          }
