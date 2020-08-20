@@ -389,8 +389,8 @@ static void *worker_slab_init(void *pdata) {
       while(!pending && !io_pending(ctx->io_ctx)) {
          if(!PINNING) {
             struct timespec ts, ts2;
-            ts->tv_sec = 0;
-            ts->tv_nsec = 200;
+            ts.tv_sec = 0;
+            ts.tv_nsec = 200;
             nanosleep(&ts, &ts2);
          } else {
             NOP10();
