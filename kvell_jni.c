@@ -13,7 +13,7 @@
 JNIEXPORT jlong JNICALL Java_edu_useoul_streamix_kvell_1flink_KVell_open_1native
         (JNIEnv *env, jobject object) {
     // init workers. Please make sure that databases are deleted.
-    slab_workers_init(1, 4);
+    slab_workers_init(1, 6);
     return 0;
 }
 
