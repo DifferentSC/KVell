@@ -49,8 +49,9 @@ void no_pass_item_callback(struct slab_callback *cb, void *item) {
 }
 
 void busy_wait_with_noop(struct slab_callback *cb) {
-    while(cb->is_finished==0)
-        NOP10();
+    do {
+        usleep(1);
+    } while(cb->is_finished==0);
 }
 
 void free_cb(struct slab_callback *cb) {
