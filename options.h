@@ -2,7 +2,7 @@
 #define OPTIONS_H
 
 #define DEBUG 0
-#define PINNING 0
+#define PINNING 1
 #define PATH "/nvme/kvell_store/slab-%d-%lu-%lu"
 
 /* In memory structures */
