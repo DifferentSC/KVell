@@ -94,8 +94,12 @@ static size_t get_slab_buffer(struct slab_context *ctx) {
       volatile size_t pending = next_buffer - ctx->processed_callbacks;
       if(pending >= ctx->max_pending_callbacks) { // Queue is full, wait
          NOP10();
-         if(!PINNING)
-            nanosleep(200);
+         if(!PINNING) {
+            struct timespec ts, ts2;
+            ts.tv_sec = 0;
+            ts.tv_nsec = 200;
+            nanosleep(&ts, &ts2);
+         }
       } else {
          break;
       }
