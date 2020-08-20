@@ -2,6 +2,7 @@
 #define SLAB_H 1
 
 #include "ioengine.h"
+#include <stdatomic.h>
 
 struct slab;
 struct slab_callback;
@@ -36,7 +37,7 @@ struct slab_callback {
    void *item;
 
    // Added to implement synchronous data read/write necessary for stream analytics.
-   int is_finished;
+   atomic_int is_finished;
    int is_new_item;
    void *result;
 

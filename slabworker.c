@@ -1,4 +1,5 @@
 #include "headers.h"
+#include <stdatomic.h>
 
 /*
  * A slab worker takes care of processing requests sent to the KV-Store.
