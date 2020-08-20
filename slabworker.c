@@ -94,10 +94,9 @@ static size_t get_slab_buffer(struct slab_context *ctx) {
       volatile size_t pending = next_buffer - ctx->processed_callbacks;
       if(pending >= ctx->max_pending_callbacks) { // Queue is full, wait
          NOP10();
-         /*
          if(!PINNING) {
             usleep(1);
-         }*/
+         }
       } else {
          break;
       }
@@ -390,7 +389,8 @@ static void *worker_slab_init(void *pdata) {
       volatile size_t pending = ctx->sent_callbacks - ctx->processed_callbacks;
       while(!pending && !io_pending(ctx->io_ctx)) {
          if(!PINNING) {
-            usleep(2);
+            // usleep(2);
+            NOP10();
          } else {
             NOP10();
          }
