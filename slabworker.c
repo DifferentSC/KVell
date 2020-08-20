@@ -95,10 +95,7 @@ static size_t get_slab_buffer(struct slab_context *ctx) {
       if(pending >= ctx->max_pending_callbacks) { // Queue is full, wait
          NOP10();
          if(!PINNING) {
-            struct timespec ts, ts2;
-            ts.tv_sec = 0;
-            ts.tv_nsec = 200;
-            nanosleep(&ts, &ts2);
+            usleep(1);
          }
       } else {
          break;
@@ -392,10 +389,7 @@ static void *worker_slab_init(void *pdata) {
       volatile size_t pending = ctx->sent_callbacks - ctx->processed_callbacks;
       while(!pending && !io_pending(ctx->io_ctx)) {
          if(!PINNING) {
-            struct timespec ts, ts2;
-            ts.tv_sec = 0;
-            ts.tv_nsec = 200;
-            nanosleep(&ts, &ts2);
+            usleep(2);
          } else {
             NOP10();
          }
